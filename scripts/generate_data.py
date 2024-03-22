@@ -7,6 +7,7 @@ from tiled.catalog import from_uri
 from tiled.client import Context, from_context
 from tiled.server.app import build_app
 import pandas as pd
+import glob
 
 uri = sys.argv[1]
 catalog = from_uri(uri, writable_storage="temp")
@@ -24,6 +25,8 @@ with Context.from_app(build_app(catalog)) as context:
             },
         )
     # Write in captured PandAblocks data
-    pandas_data = pd.read_json('./data/panda_output/export-docs-20240315_105425.jsonl', lines=True)
-    for index, row in pandas_data.iterrows():
-        client.write_array([0],metadata=row.to_dict())
+    jsonl_files = glob.glob('./data/panda_output/*.jsonl')
+    for file in jsonl_files:
+        pandas_data = pd.read_json(file, lines=True)
+        for index, row in pandas_data.iterrows():
+            client.write_array([0], metadata=row.to_dict())
